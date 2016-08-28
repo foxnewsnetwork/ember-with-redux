@@ -5,6 +5,7 @@
 export default function makeInitialState({ makeMap, makeList }) {
   return makeMap({
     activeRoutes: makeList(),
-    routesParams: makeMap()
+    routesParams: makeMap(),
+    routesModels: makeMap()
   });
 }
