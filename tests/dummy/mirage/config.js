@@ -28,4 +28,5 @@ export default function() {
 
   this.get('/dogs/:id');
   this.get('/dogs');
+  this.post('/dogs');
 }

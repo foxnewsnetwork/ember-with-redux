@@ -1,11 +1,18 @@
 import Ember from 'ember';
 
-export default function metaToKey(meta) {
-  Ember.assert('You must pass in an object with at least a property called modelName', Ember.isPresent(meta));
-  const { modelName, id } = meta;
-  if (Ember.isPresent(id)) {
-    return `${modelName}#${id}`;
-  } else {
-    return `${modelName}:new`;
+const { isPresent } = Ember;
+
+export default function metaToKey(meta={}) {
+  const { modelName, id, ref, guid } = meta;
+
+  switch (false) {
+    case !isPresent(id):
+      return `${modelName}#${id}`;
+    case !isPresent(ref):
+      return `${modelName}:${ref}`;
+    case !isPresent(modelName):
+      return `{Object ${modelName}: ${guid}}`;
+    default:
+      throw new Error('You must provide either a present ref or id in your meta');
   }
 }

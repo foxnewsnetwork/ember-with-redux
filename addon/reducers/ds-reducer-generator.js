@@ -4,6 +4,9 @@ import {
   DS_FIND_RECORD_REQUESTED,
   DS_FIND_RECORD_SUCCEEDED,
   DS_FIND_RECORD_FAILED,
+  DS_CREATE_RECORD_REQUESTED,
+  DS_CREATE_RECORD_SUCCEEDED,
+  DS_CREATE_RECORD_FAILED,
   EMBER_ROUTE_ACTIVATED,
   EMBER_ROUTE_DEACTIVATED,
   EMBER_ROUTE_PARAMS_LOADED,
@@ -14,6 +17,30 @@ import {
 export default function dsReducerGenerator(initialState, defaultAction) {
   return (state=initialState, action=defaultAction) => {
     switch (action.type) {
+      case DS_CREATE_RECORD_REQUESTED:
+        return state.update('dsStorage', (storage) => {
+          const { meta, type } = action;
+          return storage.set(metaToKey(meta), { meta, status: type });
+        });
+      case DS_CREATE_RECORD_SUCCEEDED:
+        return state.update('dsStorage', (storage) => {
+          const { meta: newRecordMeta, type, record: savedRecord } = action;
+          const newRecordKey = metaToKey(newRecordMeta);
+          const savedRecordMeta = recordToMeta(savedRecord, newRecordMeta);
+          const savedRecordKey = metaToKey(savedRecordMeta);
+          const newRecordModel = { meta: newRecordMeta, link: savedRecordKey, status: type };
+          const savedRecordModel = {
+            meta: savedRecordMeta,
+            status: type,
+            data: recordToPOJO(savedRecord)
+          };
+          return storage.set(newRecordKey, newRecordModel).set(savedRecordKey, savedRecordModel);
+        });
+      case DS_CREATE_RECORD_FAILED:
+        return state.update('dsStorage', (storage) => {
+          const { meta, type, error } = action;
+          return storage.set(metaToKey(meta), {meta, error, status: type});
+        });
       case DS_FIND_RECORD_REQUESTED:
         return state.update('dsStorage', (storage) => {
           const { meta, type } = action;

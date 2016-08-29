@@ -1,9 +1,13 @@
 import Ember from 'ember';
 import { xSync } from '../utils/x-sync';
+import uniqRef from '../utils/uniq-ref';
 import {
   DS_FIND_RECORD_REQUESTED,
   DS_FIND_RECORD_SUCCEEDED,
-  DS_FIND_RECORD_FAILED
+  DS_FIND_RECORD_FAILED,
+  DS_CREATE_RECORD_REQUESTED,
+  DS_CREATE_RECORD_SUCCEEDED,
+  DS_CREATE_RECORD_FAILED
 } from '../constants/actions';
 
 const findSync = xSync({
@@ -25,5 +29,23 @@ export default {
       return findSync(dispatch, meta, recordPromise);
     }
     return recordPromise;
+  },
+  setupRecord(modelName, data) {
+    const meta = { modelName, ref: uniqRef() };
+    return { meta, data };
+  },
+  persistRecord({meta, data}) {
+    return (dispatch) => {
+      dispatch({ type: DS_CREATE_RECORD_REQUESTED, meta });
+      const dirtyRecord = this.createRecord(meta.modelName, data);
+      return dirtyRecord.save().then((record) => {
+        dispatch({ type: DS_CREATE_RECORD_SUCCEEDED, record, meta });
+        return record;
+      }).catch(function(error) {
+        dispatch({ type: DS_CREATE_RECORD_FAILED, error, meta });
+        dirtyRecord.rollbackAttributes();
+        throw error;
+      });
+    };
   }
 };
