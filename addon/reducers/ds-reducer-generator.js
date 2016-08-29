@@ -1,8 +1,9 @@
+import metaToKey from '../utils/meta-to-key';
 import { recordToPOJO, recordToMeta } from '../utils/record-to';
 import {
-  // DS_FIND_RECORD_REQUESTED,
-  // DS_FIND_RECORD_SUCCEEDED,
-  // DS_FIND_RECORD_FAILED,
+  DS_FIND_RECORD_REQUESTED,
+  DS_FIND_RECORD_SUCCEEDED,
+  DS_FIND_RECORD_FAILED,
   EMBER_ROUTE_ACTIVATED,
   EMBER_ROUTE_DEACTIVATED,
   EMBER_ROUTE_PARAMS_LOADED,
@@ -13,17 +14,25 @@ import {
 export default function dsReducerGenerator(initialState, defaultAction) {
   return (state=initialState, action=defaultAction) => {
     switch (action.type) {
-      // case DS_FIND_RECORD_REQUESTED:
-      //   return state.update('routesModels', (routes) => {
-      //     const { meta, routeName, type } = action;
-      //     return routes.set(routeName, {meta, status: type});
-      //   });
-      // case DS_FIND_RECORD_FAILED:
-      //   return state.update('routesModels', (routes) => {
-      //     const { meta, routeName, type, error } = action;
-      //     return routes.set(routeName, {meta, error, status: type});
-      //   });
-      // case DS_FIND_RECORD_SUCCEEDED:
+      case DS_FIND_RECORD_REQUESTED:
+        return state.update('dsStorage', (storage) => {
+          const { meta, type } = action;
+          return storage.set(metaToKey(meta), {meta, status: type});
+        });
+      case DS_FIND_RECORD_FAILED:
+        return state.update('dsStorage', (storage) => {
+          const { meta, type, error } = action;
+          return storage.set(metaToKey(meta), {meta, error, status: type});
+        });
+      case DS_FIND_RECORD_SUCCEEDED:
+        return state.update('dsStorage', (storage) => {
+          const { meta, type, record } = action;
+          return storage.set(metaToKey(meta), {
+            meta: recordToMeta(record),
+            data: recordToPOJO(record),
+            status: type
+          });
+        });
       case EMBER_ROUTE_MODEL_RESOLVED:
         return state.update('routesModels', (routes) => {
           const { routeName, type, model } = action;
