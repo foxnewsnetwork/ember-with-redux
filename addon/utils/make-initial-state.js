@@ -7,6 +7,7 @@ export default function makeInitialState({ makeMap, makeList }) {
     activeRoutes: makeList(),
     routesParams: makeMap(),
     routesModels: makeMap(),
-    dsStorage: makeMap()
+    dsStorage: makeMap(),
+    dsCollections: makeMap()
   });
 }

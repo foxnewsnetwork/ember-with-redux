@@ -4,6 +4,9 @@
 At any given time, the state exposed by this addon looks like:
 ```javascript
 {
+  dsCollections: {
+    'dogs': { meta, data, status }
+  },
   dsStorage: {
     'dog#1': { meta, data, status }, // server-persisted dog model with id 1
     'dog#2': { meta, data, status }, // server-persisted dog model with id 2
