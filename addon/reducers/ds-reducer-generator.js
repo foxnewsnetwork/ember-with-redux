@@ -1,3 +1,4 @@
+import Ember from 'ember';
 import metaToKey from '../utils/meta-to-key';
 import metaToColKey from '../utils/meta-to-col-key';
 import { recordToPOJO, recordToMeta } from '../utils/record-to';
@@ -92,11 +93,19 @@ export default function dsReducerGenerator(initialState, defaultAction) {
       case EMBER_ROUTE_MODEL_RESOLVED:
         return state.update('routesModels', (routes) => {
           const { routeName, type, model } = action;
-          return routes.set(routeName, {
-            meta: recordToMeta(model),
-            data: recordToPOJO(model),
-            status: type
-          });
+          if (Ember.isArray(model)) {
+            return routes.set(routeName, {
+              meta,
+              status: type,
+              data: model.map(recordToMeta).map(metaToKey)
+            });
+          } else {
+            return routes.set(routeName, {
+              meta: recordToMeta(model),
+              data: recordToPOJO(model),
+              status: type
+            });
+          }
         });
       case EMBER_ROUTE_ACTIVATED:
         return state.update('activeRoutes', (routes) => {

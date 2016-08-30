@@ -1,11 +1,112 @@
 # Ember-with-redux
 
+A set of extensions to `DS.Store` and `Ember.Route` so that Ember + Ember Data are properly aware of redux and interface with them correctly
+
+## Usage Example 1 - Routes that find single records
+Consider a route declared like so:
+```javascript
+this.route('admin', { path: 'admin'}, function() {
+  this.route('game', { path: 'game/:game_id'});
+})
+```
+With model + adapter files (written completely in accordance with ember-data) that look something like:
+```javascript
+DS.Model.extend({
+  gameName: DS.attr('string'),
+  ...
+});
+
+MyBackendAdapter.extend({
+  findRecord() {
+    ...
+  }
+})
+```
+You can now directly use the `store` from ember-data in your route like so: (this is actually ember's default route implementation if you don't declare one)
+```javascript
+Ember.Route.extend({
+  model({game_id}) {
+    return this.store.findRecord('game', game_id);
+  }
+});
+```
+You can access the `game` POJO in redux in the `game-route-container` component like so:
+```javascript
+function computedState(state) {
+  const routesModels = state.ds.get('routesModels');
+  const {meta, data} = routesModels.get('admin.game');
+  return {
+    modelName: meta.modelName,
+    gameName: data.gameName
+  };
+}
+connect(computedState, ...)
+```
+
+## Usage Example 2 - Routes that find an array of records
+Next, let's consider an index route:
+```javascript
+this.route('farm', { path: 'farm' }, function() {
+  this.route('pigs');
+});
+```
+With similarly declared model + adapter like so (adapter omitted):
+```javascript
+const Pig = DS.Model.extend({
+  nickname: DS.attr('string'),
+  weight: DS.attr('number'),
+  purchasedAt: DS.attr('moment')
+})
+```
+You can continue using the `ds.store` as the ember-approved endpoint to access I/O:
+```javascript
+Ember.Route.extend({
+  model() {
+    return this.store.findAll('pig');
+  }
+})
+```
+You can access the `pigs` POJO via redux in the `pigs-route-container` component like so:
+```javascript
+function computedState(state) {
+  const routesModels = state.ds.get('routesModels');
+  const dsStorage = state.ds.get('dsStorage');
+  const { meta, data: pigKeys } = routesModels.get('farm.pigs');
+  return {
+    modelName: meta.modelName,
+    pigs: pigKeys.map((key) => dsStorage.get(key) )
+  }
+}
+connect(computedState, ...)
+```
+
+## Usage Example 3 - Persisting records
+Now, let's consider how we handle persisting a record to I/O (via redux-thunk):
+We handle this by introducing 2 new methods to `ds.store`, namely: `setupRecord`
+and `persistRecord` like so:
+
+Say perhaps you have a `new-pig-route-container` component:
+```javascript
+function dispatchActions(dispatch) {
+  return {
+    // pigAttrs = { nickname: 'napster', weight: 899, ... }
+    savePig(pigAttrs) {
+      const { meta, data } = this.store.setupRecord('pig', pigAttrs);
+      const thunk = this.store.persistRecord({meta, data});
+      redux.dispatch(thunk);
+    }
+  };
+}
+connect(..., dispatchActions)(Component.extend())
+```
+See the `tests/acceptance/create-record-test:33` for an example of how to attach `.then` actions to I/O actions.
+
 ## Ember State
 At any given time, the state exposed by this addon looks like:
 ```javascript
 {
   dsCollections: {
-    'dogs': { meta, data, status }
+    'dogs': { meta, data, status } // data is an array in this case
   },
   dsStorage: {
     'dog#1': { meta, data, status }, // server-persisted dog model with id 1
