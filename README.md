@@ -101,6 +101,27 @@ connect(..., dispatchActions)(Component.extend())
 ```
 See the `tests/acceptance/create-record-test:33` for an example of how to attach `.then` actions to I/O actions.
 
+## Usage Example 4 - Querying for Records
+Logically, we next tackle how to query the `ds.store` for records. As per Ember Convention,
+we use the `store.query` function (with 1 optional change):
+```javascript
+function fatPigs(pig) {
+  return pig.getWithDefault('weight', 0) > 240;
+}
+function model() {
+  const searchParams = { weight: '>240lbs' };
+  return this.store.query('pig', searchParams, fatPigs);
+}
+connect({model})
+```
+In accordance with the ds adapter notes found here: http://emberjs.com/api/data/classes/DS.Store.html#method_query,
+
+`searchParams` is a POJO hash that will be consumed by the adapter and then possibly fed further upstream your favorite backend service for server-side querying.
+
+We deviate from the standard implementation of `store.query` by allowing the user to pass in a filter function, `fatPigs` in this case, which is run against all the results we get returned from the server.
+
+Why do we essentially double-check the server with a filter function? This is so that if we happen to get more pigs from another server response, we have a tool to decide if we wish to include these additional pigs into this current query. For example:
+
 ## Ember State
 At any given time, the state exposed by this addon looks like:
 ```javascript

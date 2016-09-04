@@ -36,10 +36,11 @@
     "ember-data": "^2.7.0",
     "ember-disable-prototype-extensions": "^1.1.0",
     "ember-export-application-global": "^1.0.5",
+    "ember-immutable": "0.1.1",
     "ember-load-initializers": "^0.5.1",
     "ember-redux": "1.5.3",
     "ember-resolver": "^2.0.3",
-    "immutable": "^3.8.1",
+    "immutable": "3.8.1",
     "loader.js": "^4.0.1",
     "redux": "3.5.2",
     "redux-thunk": "2.1.0"

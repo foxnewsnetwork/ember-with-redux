@@ -36,8 +36,8 @@ describe('Acceptance: FindAllQuery', function() {
       });
     });
     it('should have all the dogs', function() {
-      const dsCollections = redux.getState().ds.get('dsCollections');
-      const {meta, data} = dsCollections.get('dogs');
+      const dsAllCollections = redux.getState().ds.get('dsAllCollections');
+      const {meta, data} = dsAllCollections.get('dogs#ALL');
 
       expect(data).to.be.a('array');
       expect(data).to.be.lengthOf(10);
@@ -47,9 +47,9 @@ describe('Acceptance: FindAllQuery', function() {
       });
     });
     it('should be able to find the actual dogs in dsStorage', function() {
-      const dsCollections = redux.getState().ds.get('dsCollections');
+      const dsAllCollections = redux.getState().ds.get('dsAllCollections');
       const dsStorage = redux.getState().ds.get('dsStorage');
-      const {data} = dsCollections.get('dogs');
+      const {data} = dsAllCollections.get('dogs#ALL');
       const dogs = data.map((key) => dsStorage.get(key));
       expect(dogs).to.be.lengthOf(10);
       expect(dogs).to.be.a('array');

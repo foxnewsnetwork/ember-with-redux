@@ -5,8 +5,8 @@ import {
   before,
   after
 } from 'mocha';
-import metaToKey from 'ember-with-redux/utils/meta-to-key';
 import Ember from 'ember';
+import { getNewMember } from 'ember-with-redux/utils/ds-storage';
 import { expect } from 'chai';
 import startApp from '../helpers/start-app';
 import destroyApp from '../helpers/destroy-app';
@@ -31,43 +31,45 @@ describe('Acceptance: CreateRecord', function() {
   });
 
   describe('it should be able to persist a dog', function() {
-    let model, originalMeta, dsStorage;
+    let model, dsState;
     before(function(done) {
       Ember.run(() => {
         const { meta, data } = store.setupRecord('dog', { name: 'rover' });
-        originalMeta = meta;
         const persistThunk = store.persistRecord({meta, data});
         const fullThunk = (dispatch) => {
           return persistThunk(dispatch).then(() => {
-            dsStorage = redux.getState().ds.get('dsStorage');
-            model = dsStorage.get(metaToKey(originalMeta));
+            dsState = redux.getState().ds;
+            model = getNewMember(dsState, meta);
             done();
           });
         };
         redux.dispatch(fullThunk);
       });
     });
-    it('should generated a sensible storage key', function() {
-      const key = metaToKey(originalMeta);
-      expect(key).to.match(/^dog:\d+\.\d+$/);
+    it('should properly find the storage model' ,function() {
+      expect(model).to.be.ok;
+      expect(model).to.respondTo('get');
     });
-    it('should persist a dog', function() {
-      const { meta } = model;
-      expect(originalMeta.ref).to.be.ok;
-      expect(meta).to.have.property('modelName', 'dog');
-      expect(meta).to.have.property('ref', originalMeta.ref);
+    describe('meta 🌎', function() {
+      let meta;
+      before(function() {
+        meta = model.get('meta');
+      });
+      it('should have the proper modelName', function() {
+        expect(meta).to.have.property('modelName', 'dog');
+      });
+      it('should have proper id', function() {
+        expect(meta).to.have.property('id');
+      });
     });
-    it('should have a link', function() {
-      expect(model).to.have.property('link');
-      expect(model.link).to.match(/^dog#\d+$/);
-    });
-    it('should have a link to the proper dog', function() {
-      const { data, meta } = dsStorage.get(model.link);
-      expect(meta).to.have.property('modelName', 'dog');
-      expect(meta).to.have.property('id');
-      expect(meta.id).to.be.ok;
-      expect(data).to.have.property('name', 'rover');
+    describe('data', function() {
+      let data;
+      before(function() {
+        data = model.get('data');
+      });
+      it('should have the proper data', function() {
+        expect(data).to.have.property('name', 'rover');
+      });
     });
   });
-
 });

@@ -12,6 +12,7 @@ import {
   DS_QUERY_COLLECTION_SUCCEEDED,
   DS_QUERY_COLLECTION_FAILED
 } from '../constants/actions';
+import { ALL } from '../constants/functions';
 
 const findSync = xSync({
   requestType: DS_FIND_RECORD_REQUESTED,
@@ -27,10 +28,23 @@ const { inject: {service} } = Ember;
 
 export default {
   redux: service('redux'),
+  query(modelName, params, filter=ALL, syncWithRedux=true) {
+    const guid = Ember.guidFor(filter);
+    const collectionPromise = this._super(modelName, params);
+
+    if (syncWithRedux) {
+      const meta = { modelName, filter, guid };
+      const redux = this.get('redux');
+      const dispatch = redux.dispatch.bind(redux);
+
+      return querySync(dispatch, meta, collectionPromise);
+    }
+    return collectionPromise;
+  },
   findAll(modelName, opts, syncWithRedux=true) {
     const collectionPromise = this._super(modelName, opts);
     if (syncWithRedux) {
-      const meta = { modelName };
+      const meta = { modelName, filter: ALL };
       const redux = this.get('redux');
       const dispatch = redux.dispatch.bind(redux);
 
