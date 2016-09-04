@@ -6,6 +6,7 @@ import {
   after
 } from 'mocha';
 import Ember from 'ember';
+import { getList } from 'ember-with-redux/utils/ds-collections';
 import { expect } from 'chai';
 import startApp from '../helpers/start-app';
 import destroyApp from '../helpers/destroy-app';
@@ -30,34 +31,32 @@ describe('Acceptance: FindAllQuery', function() {
   });
 
   describe('Successfully finding all', function() {
+    let dsState, models;
     before(function(done) {
       Ember.run(() => {
-        store.findAll('dog').finally(done);
+        store.findAll('dog').finally(() => {
+          dsState = redux.getState().ds;
+          models = getList(dsState, { modelName: 'dog' });
+          done();
+        });
       });
     });
-    it('should have all the dogs', function() {
-      const dsAllCollections = redux.getState().ds.get('dsAllCollections');
-      const {meta, data} = dsAllCollections.get('dogs#ALL');
-
-      expect(data).to.be.a('array');
-      expect(data).to.be.lengthOf(10);
-      expect(meta).to.have.property('modelName', 'dog');
-      data.map((key) => {
-        expect(key).to.match(/^dog#\d+$/);
-      });
+    it('should have fetched the models', function() {
+      expect(models).to.be.ok;
+      expect(models).to.respondTo('push');
+      expect(models).to.respondTo('pop');
     });
-    it('should be able to find the actual dogs in dsStorage', function() {
-      const dsAllCollections = redux.getState().ds.get('dsAllCollections');
-      const dsStorage = redux.getState().ds.get('dsStorage');
-      const {data} = dsAllCollections.get('dogs#ALL');
-      const dogs = data.map((key) => dsStorage.get(key));
-      expect(dogs).to.be.lengthOf(10);
-      expect(dogs).to.be.a('array');
-      dogs.map(({meta, data: dog}) => {
+    it('should be the right length', function() {
+      expect(models.count()).to.equal(10);
+    });
+    it('should contain the correct stuff', function() {
+      models.map((model) => {
+        const meta = model.get('meta');
+        const data = model.get('data');
         expect(meta).to.have.property('modelName', 'dog');
-        expect(dog).to.have.property('name');
-        expect(dog).to.have.property('id');
-        expect(dog.name).to.match(/^\w+$/);
+        expect(meta).to.have.property('id');
+        expect(data).to.have.property('name');
+        expect(data).to.have.property('id', meta.id);
       });
     });
   });

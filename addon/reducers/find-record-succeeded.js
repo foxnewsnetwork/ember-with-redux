@@ -4,7 +4,7 @@ import {
 } from '../utils/record-to';
 import {
   updateStorage,
-  setStorage,
+  setMember,
   makeMember
 } from '../utils/ds-storage';
 
@@ -13,6 +13,6 @@ export default function findRecordSucceeded(state, { type: status, record }) {
   const meta = recordToMeta(record);
 
   return updateStorage(state, (storage) => {
-    return setStorage(storage, meta, makeMember({ meta, status, data }));
+    return setMember(storage, meta, makeMember({ meta, status, data }));
   });
 }

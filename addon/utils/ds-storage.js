@@ -17,6 +17,9 @@ export function updateNewStorage(state, updater) {
 export function updateStorage(state, updater) {
   return state.update('dsStorage', updater);
 }
+export function getStorage(state, { modelName }, defaultValue=NULL_MAP) {
+  return state.get('dsStorage').get(modelName, defaultValue);
+}
 
 export function getMember(state, {modelName, id}) {
   return state.get('dsStorage', NULL_MAP).get(modelName, NULL_MAP).get(id, NULL_MAP);

@@ -1,7 +1,7 @@
 import Immutable from 'immutable';
 import { ALL } from '../constants/functions';
-import { NULL_MAP, NULL_LIST } from '../constants/initial-state';
-import { getMember } from './ds-storage';
+import { NULL_MAP } from '../constants/initial-state';
+import { getStorage } from './ds-storage';
 
 export function setCollection(collection, {modelName, filter=ALL}, collectionMember) {
   const { name: filterName } = filter;
@@ -19,9 +19,8 @@ export function updateCollections(state, updater) {
   return state.update('dsCollections', updater);
 }
 
-export function getCollection(state, {modelName, filter=ALL}) {
-  const { name: filterName } = filter;
-  const metasList = state.get('dsCollections', NULL_MAP).get(modelName, NULL_MAP).get(filterName, NULL_MAP).get('list', NULL_LIST);
-
-  return metasList.map(meta => getMember(state, meta)).filter(filter);
+export function getList(state, { modelName, filter=ALL}) {
+  return getStorage(state, { modelName })
+    .filter(filter)
+    .toList();
 }
