@@ -73,7 +73,7 @@ export default function ds(state=INITIAL_STATE, action={}) {
         return setMember(storage, meta, makeMember({meta, status, error}));
       });
     case DS_FIND_RECORD_REQUESTED:
-      return updateNewStorage(state, (storage) => {
+      return updateStorage(state, (storage) => {
         return setMember(storage, meta, makeMember({meta, status}));
       });
     case DS_FIND_RECORD_FAILED:
