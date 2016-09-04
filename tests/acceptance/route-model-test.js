@@ -6,6 +6,10 @@ import {
   afterEach
 } from 'mocha';
 import { expect } from 'chai';
+import {
+  getRouteModel,
+  getRouteParams,
+} from 'ember-with-redux/utils/route';
 import startApp from '../helpers/start-app';
 import destroyApp from '../helpers/destroy-app';
 
@@ -32,18 +36,17 @@ describe('Acceptance | route model', function() {
   });
 
   describe('visiting a dog', function() {
-    let routesModels, routesParams;
+    let dsState;
     beforeEach(function(done) {
       visit('dog/1');
       andThen(() => {
-        routesModels = redux.getState().ds.get('routesModels');
-        routesParams = redux.getState().ds.get('routesParams');
+        dsState = redux.getState().ds;
         done();
       });
     });
 
     it('should have a proper dog_id', function() {
-      const params = routesParams.get('dog');
+      const params = getRouteParams(dsState, 'dog');
       expect(params).to.have.property('dog_id');
     });
 
@@ -52,7 +55,7 @@ describe('Acceptance | route model', function() {
     });
 
     it('should have the dog model data on the active route', function() {
-      const { meta, data } = routesModels.get(currentPath());
+      const { meta, data } = getRouteModel(dsState, currentPath());
       expect(meta).to.have.property('modelName', 'dog');
       expect(meta).to.have.property('id', '1');
       expect(data).to.have.property('id', '1');

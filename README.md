@@ -32,9 +32,9 @@ Ember.Route.extend({
 ```
 You can access the `game` POJO in redux in the `game-route-container` component like so:
 ```javascript
+import { getRouteModel } from 'ember-with-redux/utils/route';
 function computedState(state) {
-  const routesModels = state.ds.get('routesModels');
-  const {meta, data} = routesModels.get('admin.game');
+  const {meta, data} = getRouteModel(state.ds, 'admin.game');
   return {
     modelName: meta.modelName,
     gameName: data.gameName
@@ -68,10 +68,11 @@ Ember.Route.extend({
 ```
 You can access the `pigs` POJO via redux in the `pigs-route-container` component like so:
 ```javascript
+import getRouteModel from 'ember-with-redux/utils/route';
 function computedState(state) {
   const routesModels = state.ds.get('routesModels');
   const dsStorage = state.ds.get('dsStorage');
-  const { meta, data: pigKeys } = routesModels.get('farm.pigs');
+  const { meta, data } = routesModels.get('farm.pigs');
   return {
     modelName: meta.modelName,
     pigs: pigKeys.map((key) => dsStorage.get(key) )
