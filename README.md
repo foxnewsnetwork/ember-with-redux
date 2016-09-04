@@ -34,7 +34,10 @@ You can access the `game` POJO in redux in the `game-route-container` component 
 ```javascript
 import { getRouteModel } from 'ember-with-redux/utils/route';
 function computedState(state) {
-  const {meta, data} = getRouteModel(state.ds, 'admin.game');
+  const game = getRouteModel(state.ds, 'admin.game');
+  // game is an Immutable.Map
+  const meta = game.get('meta');
+  const data = game.get('data');
   return {
     modelName: meta.modelName,
     gameName: data.gameName
@@ -124,16 +127,22 @@ We deviate from the standard implementation of `store.query` by allowing the use
 Why do we essentially double-check the server with a filter function? This is so that if we happen to get more pigs from another server response, we have a tool to decide if we wish to include these additional pigs into this current query. For example:
 
 ## Ember State
-At any given time, the state exposed by this addon looks like:
+At any given time, the state exposed by this addon looks like: (bear in mind {} is actually an Immutable.Map)
 ```javascript
 {
   dsCollections: {
-    'dogs': { meta, data, status } // data is an array in this case
+    'dogs': { meta, status } // data is an array in this case
   },
   dsStorage: {
-    'dog#1': { meta, data, status }, // server-persisted dog model with id 1
-    'dog#2': { meta, data, status }, // server-persisted dog model with id 2
-    'dog:12312332.2': { meta, link, status}, // locally created dog model with a link
+    'dog': {
+      '1': { meta, data, status }, // server-persisted dog model with id 1
+      'rover': { meta, data, status }, // server-persisted dog model with id 2
+    }
+  },
+  dsNewStorage: {
+    'dog': {
+      '12312332.2': { meta, status }, // locally created dog model with a link
+    }
   },
   routesParams: {
     'application': {},
@@ -170,7 +179,6 @@ data = {
 };
 ```
 
-`link` is a string that looks like `dog#1` which literally refers to another key in the dsStorage
 `status` is the last action that updated the entire hash
 
 ## Installation
