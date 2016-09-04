@@ -6,12 +6,13 @@ import {
   after
 } from 'mocha';
 import Ember from 'ember';
+import { getList } from 'ember-with-redux/utils/ds-collections';
 import { expect } from 'chai';
 import startApp from '../helpers/start-app';
 import destroyApp from '../helpers/destroy-app';
 
 function dogThatBites(dog) {
-  return dog.get('bites');
+  return dog.get('data', {}).bites;
 }
 
 describe('Acceptance: QueryFilter', function() {
@@ -35,31 +36,31 @@ describe('Acceptance: QueryFilter', function() {
   });
 
   describe('successfully querying for dogs that bite', function() {
-    let dsCollections, dsStorage;
+    let models, dsState;
+    const meta = { modelName: 'dog', filter: dogThatBites };
     before(function(done) {
       Ember.run(() => {
-        store.query('dog', { bites: true }, dogThatBites).finally(() => {
-          dsCollections = redux.getState().ds.get('dsCollections');
-          dsStorage = redux.getState().ds.get('dsStorage');
+        store.query(meta.modelName, { bites: true }, meta.filter).finally(() => {
+          dsState = redux.getState().ds;
+          models = getList(dsState, meta);
           done();
         });
       });
     });
 
-    it('should return 10 dogs that bites', function() {
-      const { data } = dsCollections.get('dogs#dogThatBites');
-      expect(data).to.have.lengthOf(10);
-      expect(data).to.be.a('array');
-      data.map((dogKey) => {
-        const { data: dog } = dsStorage.get(dogKey);
-        expect(dogKey).to.match(/^dog#\d+$/);
-        expect(dog).to.have.property('bites', true);
-      });
+    it('should return sane data', function() {
+      expect(models).to.respondTo('count');
+      expect(models.count()).to.equal(10);
     });
-    it('should return the correct meta', function(){
-      const { meta } = dsCollections.get('dogs#dogThatBites');
-      expect(meta).to.have.property('modelName', 'dog');
-      expect(meta).to.have.property('guid', Ember.guidFor(dogThatBites));
+    it('should return 10 dogs that bites', function() {
+      models.map((model) => {
+        const meta = model.get('meta');
+        const data = model.get('data');
+        expect(meta).to.have.property('modelName', 'dog');
+        expect(meta).to.have.property('id');
+        expect(data).to.have.property('name');
+        expect(data).to.have.property('bites', true);
+      });
     });
   });
 });
