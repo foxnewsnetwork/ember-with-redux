@@ -12,7 +12,11 @@ import {
 import queryRecordsSucceeded from './query-records-succeeded';
 import findRecordSucceeded from './find-record-succeeded';
 import createRecordSucceeded from './create-record-succeeded';
-import routeModelResolved from './route-model-resolved';
+import {
+  routePOJOResolved,
+  routeModelResolved,
+  routeArrayResolved
+}  from './route-resolved';
 import { INITIAL_STATE } from '../constants/initial-state';
 import {
   DS_FIND_RECORD_REQUESTED,
@@ -31,6 +35,8 @@ import {
   EMBER_ROUTE_DEACTIVATED,
   EMBER_ROUTE_PARAMS_LOADED,
   EMBER_ROUTE_MODEL_RESOLVED,
+  EMBER_ROUTE_ARRAY_RESOLVED,
+  EMBER_ROUTE_POJO_RESOLVED,
   EMBER_DS_RESET_STATE
 } from '../constants/actions';
 
@@ -82,6 +88,10 @@ export default function ds(state=INITIAL_STATE, action={}) {
       });
     case DS_FIND_RECORD_SUCCEEDED:
       return findRecordSucceeded(state, action);
+    case EMBER_ROUTE_POJO_RESOLVED:
+      return routePOJOResolved(state, action);
+    case EMBER_ROUTE_ARRAY_RESOLVED:
+      return routeArrayResolved(state, action);
     case EMBER_ROUTE_MODEL_RESOLVED:
       return routeModelResolved(state, action);
     case EMBER_ROUTE_ACTIVATED:

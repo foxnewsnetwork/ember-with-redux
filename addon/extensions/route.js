@@ -1,10 +1,32 @@
 import Ember from 'ember';
 import {
   EMBER_ROUTE_MODEL_RESOLVED,
+  EMBER_ROUTE_ARRAY_RESOLVED,
+  EMBER_ROUTE_POJO_RESOLVED,
   EMBER_ROUTE_ACTIVATED,
   EMBER_ROUTE_DEACTIVATED,
   EMBER_ROUTE_PARAMS_LOADED
 } from '../constants/actions';
+
+const { isArray, isPresent, get } = Ember;
+const ActionImplementation = {
+  dsArray(array) { return { type: EMBER_ROUTE_ARRAY_RESOLVED, array }; },
+  dsModel(model) { return { type: EMBER_ROUTE_MODEL_RESOLVED, model }; },
+  pojoModel(pojo) { return { type: EMBER_ROUTE_POJO_RESOLVED, pojo }; }
+};
+function modelAction(model) {
+  switch(false) {
+    case !isArray(model):
+      return ActionImplementation.dsArray(model);
+    case !isDSModel(model):
+      return ActionImplementation.dsModel(model);
+    default:
+      return ActionImplementation.pojoModel(model);
+  }
+}
+function isDSModel(model) {
+  return isPresent(model) && isPresent(get(model, 'constructor.modelName'));
+}
 
 export default {
   redux: Ember.inject.service('redux'),
@@ -21,14 +43,9 @@ export default {
 
   afterModel(model, transition) {
     const redux = this.get('redux');
-
-    if (Ember.isPresent(model)) {
-      redux.dispatch({
-        type: EMBER_ROUTE_MODEL_RESOLVED,
-        routeName: this.routeName,
-        model
-      });
-    }
+    const actionBase = { routeName: this.routeName };
+    const action = Ember.assign(actionBase, modelAction(model));
+    redux.dispatch(action);
     return this._super(model, transition);
   },
 

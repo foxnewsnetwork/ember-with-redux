@@ -19,10 +19,6 @@ export function updateCollections(state, updater) {
   return state.update('dsCollections', updater);
 }
 
-function xLog(x) {
-  console.log('234234', x);
-  return x;
-}
 export function getList(state, { modelName, filter=ALL}) {
   return getStorage(state, { modelName })
     .filter(filter)

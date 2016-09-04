@@ -20,6 +20,8 @@ Router.map(function() {
   this.route('dog', { path: 'dog/:dog_id' }, function() {
     this.route('edit');
   });
+  this.route('dogs');
+  this.route('pojo');
 });
 
 export default Router;

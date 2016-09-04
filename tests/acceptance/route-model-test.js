@@ -2,8 +2,8 @@
 import {
   describe,
   it,
-  beforeEach,
-  afterEach
+  before,
+  after
 } from 'mocha';
 import { expect } from 'chai';
 import {
@@ -16,7 +16,7 @@ import destroyApp from '../helpers/destroy-app';
 describe('Acceptance | route model', function() {
   let application, redux, container;
 
-  beforeEach(function(done) {
+  before(function(done) {
     application = startApp();
     server.createList('dog', 10);
     visit('/');
@@ -27,7 +27,7 @@ describe('Acceptance | route model', function() {
     });
   });
 
-  afterEach(function() {
+  after(function() {
     destroyApp(application);
   });
 
@@ -37,7 +37,7 @@ describe('Acceptance | route model', function() {
 
   describe('visiting a dog', function() {
     let dsState;
-    beforeEach(function(done) {
+    before(function(done) {
       visit('dog/1');
       andThen(() => {
         dsState = redux.getState().ds;
@@ -55,7 +55,10 @@ describe('Acceptance | route model', function() {
     });
 
     it('should have the dog model data on the active route', function() {
-      const { meta, data } = getRouteModel(dsState, currentPath());
+      const model = getRouteModel(dsState, currentPath());
+      const meta = model.get('meta');
+      const data = model.get('data');
+      expect(meta).to.have.property('routeName', currentPath());
       expect(meta).to.have.property('modelName', 'dog');
       expect(meta).to.have.property('id', '1');
       expect(data).to.have.property('id', '1');
