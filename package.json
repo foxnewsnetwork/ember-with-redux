@@ -38,6 +38,7 @@
     "ember-export-application-global": "^1.0.5",
     "ember-immutable": "0.1.1",
     "ember-load-initializers": "^0.5.1",
+    "ember-one-way-controls": "1.1.0",
     "ember-redux": "1.5.3",
     "ember-resolver": "^2.0.3",
     "immutable": "3.8.1",

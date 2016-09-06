@@ -11,9 +11,6 @@ export function setMember(dsStorage, {modelName, id, ref}, member) {
     return members.set(key, member);
   });
 }
-export function updateNewStorage(state, updater) {
-  return state.update('dsNewStorage', updater);
-}
 export function updateStorage(state, updater) {
   return state.update('dsStorage', updater);
 }
@@ -25,8 +22,9 @@ export function getMember(state, {modelName, id}) {
   return state.get('dsStorage', NULL_MAP).get(modelName, NULL_MAP).get(id, NULL_MAP);
 }
 
-export function getNewMember(state, {modelName, ref}) {
-  const meta = state.get('dsNewStorage', NULL_MAP)
+export function getNewMember(state, changeset) {
+  const { modelName, ref } = changeset.get('meta');
+  const meta = state.get('dsChangesets', NULL_MAP)
     .get(modelName, NULL_MAP)
     .get(ref, NULL_MAP)
     .get('meta');

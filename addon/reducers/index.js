@@ -1,6 +1,5 @@
 import {
   setMember,
-  updateNewStorage,
   updateStorage,
   makeMember
 } from '../utils/ds-storage';
@@ -11,7 +10,13 @@ import {
 } from '../utils/ds-collections';
 import queryRecordsSucceeded from './query-records-succeeded';
 import findRecordSucceeded from './find-record-succeeded';
-import createRecordSucceeded from './create-record-succeeded';
+import {
+  setupChangeset,
+  destroyChangeset,
+  modifyChangeset,
+  failChangeset,
+  persistChangeset
+} from './changeset';
 import {
   routePOJOResolved,
   routeModelResolved,
@@ -22,15 +27,17 @@ import {
   DS_FIND_RECORD_REQUESTED,
   DS_FIND_RECORD_SUCCEEDED,
   DS_FIND_RECORD_FAILED,
-  DS_CREATE_RECORD_REQUESTED,
-  DS_CREATE_RECORD_SUCCEEDED,
-  DS_CREATE_RECORD_FAILED,
   DS_QUERY_COLLECTION_REQUESTED,
   DS_QUERY_COLLECTION_SUCCEEDED,
   DS_QUERY_COLLECTION_FAILED,
   DS_ALL_COLLECTION_REQUESTED,
   DS_ALL_COLLECTION_SUCCEEDED,
   DS_ALL_COLLECTION_FAILED,
+  DS_CHANGESET_PERSIST_FAILED,
+  DS_CHANGESET_PERSIST_SUCCEEDED,
+  DS_CHANGESET_MODIFIED,
+  DS_CHANGESET_CREATED,
+  DS_CHANGESET_CLEARED,
   EMBER_ROUTE_ACTIVATED,
   EMBER_ROUTE_DEACTIVATED,
   EMBER_ROUTE_PARAMS_LOADED,
@@ -55,6 +62,16 @@ arcane than `.`, `$`, `<$>`, and `>>=`
 export default function ds(state=INITIAL_STATE, action={}) {
   const { meta, error, type: status } = action;
   switch (action.type) {
+    case DS_CHANGESET_CREATED:
+      return setupChangeset(state, action);
+    case DS_CHANGESET_CLEARED:
+      return destroyChangeset(state, action);
+    case DS_CHANGESET_MODIFIED:
+      return modifyChangeset(state, action);
+    case DS_CHANGESET_PERSIST_FAILED:
+      return failChangeset(state, action);
+    case DS_CHANGESET_PERSIST_SUCCEEDED:
+      return persistChangeset(state, action);
     case DS_QUERY_COLLECTION_REQUESTED:
     case DS_ALL_COLLECTION_REQUESTED:
       return updateCollections(state,  (collections) => {
@@ -67,16 +84,6 @@ export default function ds(state=INITIAL_STATE, action={}) {
     case DS_ALL_COLLECTION_FAILED:
       return updateCollections(state, (collections) => {
         return setCollection(collections, meta, makeCollectionMember({meta, error, status}));
-      });
-    case DS_CREATE_RECORD_REQUESTED:
-      return updateNewStorage(state, (storage) => {
-        return setMember(storage, meta, makeMember({meta, status}));
-      });
-    case DS_CREATE_RECORD_SUCCEEDED:
-      return createRecordSucceeded(state, action);
-    case DS_CREATE_RECORD_FAILED:
-      return updateNewStorage(state, (storage) => {
-        return setMember(storage, meta, makeMember({meta, status, error}));
       });
     case DS_FIND_RECORD_REQUESTED:
       return updateStorage(state, (storage) => {

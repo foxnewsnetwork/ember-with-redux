@@ -34,12 +34,12 @@ describe('Acceptance: CreateRecord', function() {
     let model, dsState;
     before(function(done) {
       Ember.run(() => {
-        const { meta, data } = store.setupRecord('dog', { name: 'rover' });
-        const persistThunk = store.persistRecord({meta, data});
+        const changeset = store.checkoutChangeset({ modelName: 'dog', changes: { name: 'rover' }});
+        const persistThunk = store.persistChangeset(changeset);
         const fullThunk = (dispatch) => {
           return persistThunk(dispatch).then(() => {
             dsState = redux.getState().ds;
-            model = getNewMember(dsState, meta);
+            model = getNewMember(dsState, changeset);
             done();
           });
         };

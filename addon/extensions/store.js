@@ -1,18 +1,26 @@
 import Ember from 'ember';
 import { xSync } from '../utils/x-sync';
-import uniqRef from '../utils/uniq-ref';
 import {
   DS_FIND_RECORD_REQUESTED,
   DS_FIND_RECORD_SUCCEEDED,
   DS_FIND_RECORD_FAILED,
-  DS_CREATE_RECORD_REQUESTED,
-  DS_CREATE_RECORD_SUCCEEDED,
-  DS_CREATE_RECORD_FAILED,
+  DS_CHANGESET_PERSIST_FAILED,
+  DS_CHANGESET_PERSIST_SUCCEEDED,
+  DS_CHANGESET_MODIFIED,
+  DS_CHANGESET_CREATED,
+  DS_CHANGESET_CLEARED,
   DS_QUERY_COLLECTION_REQUESTED,
   DS_QUERY_COLLECTION_SUCCEEDED,
   DS_QUERY_COLLECTION_FAILED
 } from '../constants/actions';
 import { ALL } from '../constants/functions';
+import {
+  checkoutChangeset,
+  checkoutNewChangeset
+} from '../utils/checkout-changeset';
+import {
+  isDSRecord
+} from '../utils/is';
 
 const findSync = xSync({
   requestType: DS_FIND_RECORD_REQUESTED,
@@ -24,7 +32,10 @@ const querySync = xSync({
   successType: DS_QUERY_COLLECTION_SUCCEEDED,
   failureType: DS_QUERY_COLLECTION_FAILED
 });
-const { inject: {service} } = Ember;
+const { inject: {service}, isPresent } = Ember;
+
+const USAGE_MESSAGE = 'You must either pass in a `{ record: DS.Model }` or a ' +
+'`{ modelName: String }` to get back a changeset object';
 
 export default {
   redux: service('redux'),
@@ -62,19 +73,28 @@ export default {
     }
     return recordPromise;
   },
-  setupRecord(modelName, data) {
-    const meta = { modelName, ref: uniqRef() };
-    return { meta, data };
+  checkoutChangeset({modelName, record, changes={}}) {
+    switch (false) {
+      case !isDSRecord(record):
+        return checkoutChangeset(this, record, changes);
+      case !isPresent(modelName):
+        return checkoutNewChangeset(this, modelName, changes);
+      default:
+        throw new Error(USAGE_MESSAGE);
+    }
   },
-  persistRecord({meta, data}) {
+  persistChangeset(changeset) {
+    const meta = changeset.get('meta');
+    const data = changeset.get('changes');
+
     return (dispatch) => {
-      dispatch({ type: DS_CREATE_RECORD_REQUESTED, meta });
+      dispatch({ type: DS_CHANGESET_CREATED, changeset });
       const dirtyRecord = this.createRecord(meta.modelName, data);
       return dirtyRecord.save().then((record) => {
-        dispatch({ type: DS_CREATE_RECORD_SUCCEEDED, record, meta });
+        dispatch({ type: DS_CHANGESET_PERSIST_SUCCEEDED, record, changeset });
         return record;
       }).catch(function(error) {
-        dispatch({ type: DS_CREATE_RECORD_FAILED, error, meta });
+        dispatch({ type: DS_CHANGESET_PERSIST_FAILED, error, changeset });
         dirtyRecord.rollbackAttributes();
         throw error;
       });

@@ -1,5 +1,8 @@
 import Ember from 'ember';
 import {
+  isDSRecord
+} from '../utils/is';
+import {
   EMBER_ROUTE_MODEL_RESOLVED,
   EMBER_ROUTE_ARRAY_RESOLVED,
   EMBER_ROUTE_POJO_RESOLVED,
@@ -8,28 +11,32 @@ import {
   EMBER_ROUTE_PARAMS_LOADED
 } from '../constants/actions';
 
-const { isArray, isPresent, get } = Ember;
+const { isArray } = Ember;
 const ActionImplementation = {
   dsArray(array) { return { type: EMBER_ROUTE_ARRAY_RESOLVED, array }; },
   dsModel(model) { return { type: EMBER_ROUTE_MODEL_RESOLVED, model }; },
   pojoModel(pojo) { return { type: EMBER_ROUTE_POJO_RESOLVED, pojo }; }
 };
+
 function modelAction(model) {
   switch(false) {
     case !isArray(model):
       return ActionImplementation.dsArray(model);
-    case !isDSModel(model):
+    case !isDSRecord(model):
       return ActionImplementation.dsModel(model);
     default:
       return ActionImplementation.pojoModel(model);
   }
 }
-function isDSModel(model) {
-  return isPresent(model) && isPresent(get(model, 'constructor.modelName'));
-}
 
 export default {
   redux: Ember.inject.service('redux'),
+
+  setupController(controller, model) {
+    controller.set('routeName', this.routeName);
+    controller.didActivateRoute();
+    return this._super(controller, model);
+  },
 
   model(params, transition) {
     const redux = this.get('redux');
@@ -63,5 +70,6 @@ export default {
       type: EMBER_ROUTE_DEACTIVATED,
       routeName: this.routeName
     });
+    this.controller.willDeactivateRoute();
   }
 };
