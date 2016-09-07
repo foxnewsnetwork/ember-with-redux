@@ -1,7 +1,7 @@
 {
   "name": "ember-with-redux",
   "version": "0.0.0",
-  "description": "The default blueprint for ember-cli addons.",
+  "description": "Ember and ember-data extensions to properly integrate with ember-redux",
   "directories": {
     "doc": "doc",
     "test": "tests"
@@ -11,11 +11,11 @@
     "start": "ember server",
     "test": "ember try:each"
   },
-  "repository": "",
+  "repository": "https://github.com/foxnewsnetwork/ember-with-redux",
   "engines": {
     "node": ">= 0.10.0"
   },
-  "author": "",
+  "author": "Thomas Chen",
   "license": "MIT",
   "devDependencies": {
     "broccoli-asset-rev": "^2.4.2",
