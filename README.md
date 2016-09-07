@@ -1,5 +1,5 @@
 # Ember-with-redux
-
+[![Build Status](https://travis-ci.org/foxnewsnetwork/ember-with-redux.svg?branch=master)](https://travis-ci.org/foxnewsnetwork/ember-with-redux)
 A set of extensions to `DS.Store` and `Ember.Route` so that Ember + Ember Data are properly aware of redux and interface with them correctly
 
 > TODO: Implement transformations in query
