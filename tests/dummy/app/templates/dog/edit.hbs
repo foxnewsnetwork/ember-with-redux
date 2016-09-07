@@ -1,8 +1,8 @@
-<h1 class="page-title">{{meta.modelName}} - {{data.name}}</h1>
-<form {{action submit on='submit'}}>
+<h1 class="page-title">{{meta.modelName}} - {{meta.id}}</h1>
+<form {{action (ds-persist-action changeset) on='submit'}}>
   <label for="dogName">
-    <h4>Dog Name</h4>
-    {{one-way-input changeset.name update=(action (ds-mut changeset "name")) name="dogName"}}
+    <h4>Dog Name: <span class="dog-name-field">{{changes.name}}</span></h4>
+    {{one-way-input changes.name update=(ds-mut-action changeset "name") name="dogName"}}
   </label>
 
   <button type="submit">Submit</button>

@@ -1,11 +1,13 @@
 import Ember from 'ember';
 import {
-  isDSRecord
+  isDSRecord,
+  isChangeset
 } from '../utils/is';
 import {
   EMBER_ROUTE_MODEL_RESOLVED,
   EMBER_ROUTE_ARRAY_RESOLVED,
   EMBER_ROUTE_POJO_RESOLVED,
+  EMBER_ROUTE_CHANGESET_RESOLVED,
   EMBER_ROUTE_ACTIVATED,
   EMBER_ROUTE_DEACTIVATED,
   EMBER_ROUTE_PARAMS_LOADED
@@ -15,7 +17,8 @@ const { isArray } = Ember;
 const ActionImplementation = {
   dsArray(array) { return { type: EMBER_ROUTE_ARRAY_RESOLVED, array }; },
   dsModel(model) { return { type: EMBER_ROUTE_MODEL_RESOLVED, model }; },
-  pojoModel(pojo) { return { type: EMBER_ROUTE_POJO_RESOLVED, pojo }; }
+  pojoModel(pojo) { return { type: EMBER_ROUTE_POJO_RESOLVED, pojo }; },
+  changesetModel(changeset) { return { type: EMBER_ROUTE_CHANGESET_RESOLVED, changeset }; }
 };
 
 function modelAction(model) {
@@ -24,6 +27,8 @@ function modelAction(model) {
       return ActionImplementation.dsArray(model);
     case !isDSRecord(model):
       return ActionImplementation.dsModel(model);
+    case !isChangeset(model):
+      return ActionImplementation.changesetModel(model);
     default:
       return ActionImplementation.pojoModel(model);
   }

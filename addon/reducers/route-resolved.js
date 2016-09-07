@@ -3,7 +3,8 @@ import {
   setRouteModel,
   makeRouteModel,
   makeRouteArray,
-  makeRoutePOJO
+  makeRoutePOJO,
+  makeRouteChangeset
 } from '../utils/route';
 
 export function routeModelResolved(state, action) {
@@ -27,5 +28,13 @@ export function routePOJOResolved(state, action) {
 
   return updateRoutesModels(state, (routes) => {
     return setRouteModel(routes, routeName, makeRoutePOJO({routeName, type, pojo}));
+  });
+}
+
+export function routeChangesetResolved(state, action) {
+  const { routeName, type, changeset } = action;
+
+  return updateRoutesModels(state, (routes) => {
+    return setRouteModel(routes, routeName, makeRouteChangeset({routeName, type, changeset}));
   });
 }

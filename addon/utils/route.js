@@ -1,11 +1,27 @@
 import Ember from 'ember';
 import Immutable from 'immutable';
-import { recordToPOJO, recordToMeta } from '../utils/record-to';
+import { recordToMeta } from '../utils/record-to';
 import { recordsToMeta } from '../utils/records-to';
-
+import { NULL_MAP } from '../constants/initial-state';
+import { LIST, RECORD, CHANGESET, POJO } from '../constants/route-model-types';
+import { findChangeset } from './ds-changesets';
+import { getMember } from './ds-storage';
 const { assert, typeOf, assign } = Ember;
+
 export function getRouteModel(state, routeName) {
-  return state.get('routesModels').get(routeName);
+  const routeModel = state.get('routesModels').get(routeName, NULL_MAP);
+  switch (routeModel.get('dataType')) {
+    case LIST:
+      return routeModel.update('list', (metas) => metas.map( meta => getMember(state, meta)));
+    case RECORD:
+      return routeModel.set('data', getMember(state, routeModel.get('meta')).get('data') );
+    case CHANGESET:
+      return routeModel.set('changeset', findChangeset(state, routeModel.get('meta')));
+    case POJO:
+      return routeModel;
+    default:
+      return NULL_MAP;
+  }
 }
 
 export function getRouteParams(state, routeName) {
@@ -24,13 +40,14 @@ export function setRouteModel(routesModels, routeName, routeModel) {
 export function makeRouteModel({routeName, type, model: record}) {
   return Immutable.Map({
     status: type,
-    data: recordToPOJO(record),
+    dataType: RECORD,
     meta: assign({routeName}, recordToMeta(record))
   });
 }
 
 export function makeRouteArray({routeName, type, array: records}) {
   return Immutable.Map({
+    dataType: LIST,
     status: type,
     list: Immutable.List(records.map(recordToMeta)),
     meta: assign({routeName}, recordsToMeta(records))
@@ -39,8 +56,17 @@ export function makeRouteArray({routeName, type, array: records}) {
 
 export function makeRoutePOJO({routeName, type, pojo}) {
   return Immutable.Map({
+    dataType: POJO,
     status: type,
     pojo,
     meta: { routeName }
+  });
+}
+
+export function makeRouteChangeset({routeName, type, changeset}) {
+  return Immutable.Map({
+    dataType: CHANGESET,
+    status: type,
+    meta: assign({routeName}, changeset.get('meta'))
   });
 }

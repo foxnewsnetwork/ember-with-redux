@@ -13,7 +13,7 @@ import destroyApp from '../helpers/destroy-app';
 
 // 🌎 <- hey, it's a globe
 describe('Acceptance: CreateRecord', function() {
-  let application, container, store, redux;
+  let application, container, store, redux, changeset;
 
   before(function(done) {
     application = startApp();
@@ -22,6 +22,7 @@ describe('Acceptance: CreateRecord', function() {
       container = application.__container__;
       redux = container.lookup('service:redux');
       store = container.lookup('service:store');
+      changeset = store.checkoutChangeset({ modelName: 'dog', changes: { name: 'rover' }});
       done();
     });
   });
@@ -30,11 +31,16 @@ describe('Acceptance: CreateRecord', function() {
     destroyApp(application);
   });
 
+  it('should be a reasonable changeset', function() {
+    const {modelName, ref} = changeset.get('meta');
+    expect(modelName).to.equal('dog');
+    expect(ref).to.be.ok;
+  });
+
   describe('it should be able to persist a dog', function() {
     let model, dsState;
     before(function(done) {
       Ember.run(() => {
-        const changeset = store.checkoutChangeset({ modelName: 'dog', changes: { name: 'rover' }});
         const persistThunk = store.persistChangeset(changeset);
         const fullThunk = (dispatch) => {
           return persistThunk(dispatch).then(() => {
@@ -54,6 +60,9 @@ describe('Acceptance: CreateRecord', function() {
       let meta;
       before(function() {
         meta = model.get('meta');
+      });
+      it('should be ok', function() {
+        expect(meta).to.be.ok;
       });
       it('should have the proper modelName', function() {
         expect(meta).to.have.property('modelName', 'dog');

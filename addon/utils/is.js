@@ -9,3 +9,10 @@ export function isDSRecord(maybeRecord) {
 export function isPOJO(maybePOJO) {
   return typeOf(maybePOJO) === 'object';
 }
+
+export function isChangeset(maybeChangeset) {
+  return typeOf(maybeChangeset) === 'object' &&
+    typeOf(maybeChangeset.get) === 'function' &&
+    isPresent(maybeChangeset.get('meta')) &&
+    isPresent(maybeChangeset.get('changes'));
+}

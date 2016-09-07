@@ -7,7 +7,6 @@ import {
 } from 'mocha';
 import { expect } from 'chai';
 import { getRouteModel } from 'ember-with-redux/utils/route';
-import { getMember } from 'ember-with-redux/utils/ds-storage';
 import startApp from '../helpers/start-app';
 import destroyApp from '../helpers/destroy-app';
 
@@ -54,10 +53,7 @@ describe('Acceptance: RouteArray', function() {
   });
 
   it('should have a list with proper data', function() {
-    routeModel.get('list').map((meta) => {
-      expect(meta).to.have.property('modelName', 'dog');
-      return getMember(dsState, meta);
-    }).map((dog) => {
+    routeModel.get('list').map((dog) => {
       const meta = dog.get('meta');
       const data = dog.get('data');
 

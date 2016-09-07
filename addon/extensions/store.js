@@ -6,9 +6,7 @@ import {
   DS_FIND_RECORD_FAILED,
   DS_CHANGESET_PERSIST_FAILED,
   DS_CHANGESET_PERSIST_SUCCEEDED,
-  DS_CHANGESET_MODIFIED,
   DS_CHANGESET_CREATED,
-  DS_CHANGESET_CLEARED,
   DS_QUERY_COLLECTION_REQUESTED,
   DS_QUERY_COLLECTION_SUCCEEDED,
   DS_QUERY_COLLECTION_FAILED
@@ -36,6 +34,18 @@ const { inject: {service}, isPresent } = Ember;
 
 const USAGE_MESSAGE = 'You must either pass in a `{ record: DS.Model }` or a ' +
 '`{ modelName: String }` to get back a changeset object';
+
+function maybePeekRecord(store, modelName, id) {
+  if (isPresent(modelName) && isPresent(id)) {
+    return store.peekRecord(modelName, id);
+  }
+}
+
+function setupAttributes(record, data={}) {
+  record.setProperties(data);
+  console.log('record name: ', record.get('name'), data);
+  return record;
+}
 
 export default {
   redux: service('redux'),
@@ -74,22 +84,26 @@ export default {
     return recordPromise;
   },
   checkoutChangeset({modelName, record, changes={}}) {
+    const redux = this.get('redux');
     switch (false) {
       case !isDSRecord(record):
-        return checkoutChangeset(this, record, changes);
+        return checkoutChangeset(redux, record, changes);
       case !isPresent(modelName):
-        return checkoutNewChangeset(this, modelName, changes);
+        return checkoutNewChangeset(redux, modelName, changes);
       default:
         throw new Error(USAGE_MESSAGE);
     }
   },
   persistChangeset(changeset) {
-    const meta = changeset.get('meta');
+    const { modelName, id } = changeset.get('meta', {});
     const data = changeset.get('changes');
 
+    Ember.assert('your changeset must contain a meta with a valid modelName', isPresent(modelName));
+    Ember.assert('your changeset must contain a changes that is a valid object', isPresent(data));
     return (dispatch) => {
       dispatch({ type: DS_CHANGESET_CREATED, changeset });
-      const dirtyRecord = this.createRecord(meta.modelName, data);
+      const cleanRecord = maybePeekRecord(this, modelName, id) || this.createRecord(modelName);
+      const dirtyRecord = setupAttributes(cleanRecord, data);
       return dirtyRecord.save().then((record) => {
         dispatch({ type: DS_CHANGESET_PERSIST_SUCCEEDED, record, changeset });
         return record;

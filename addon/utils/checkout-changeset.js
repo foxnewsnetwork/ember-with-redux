@@ -6,12 +6,11 @@ import {
 import {
   recordToMeta,
   recordToPOJO
-} from './utils/record-to';
+} from './record-to';
 import { makeChangeset } from './ds-changesets';
 
-export function checkoutChangeset(store, dsRecord, defaultChanges={}) {
-  const redux = store.get('redux');
-  const ref = Ember.guid(dsRecord);
+export function checkoutChangeset(redux, dsRecord, defaultChanges={}) {
+  const ref = Ember.guidFor(dsRecord);
   const meta = recordToMeta(dsRecord, {ref});
   const changes = Ember.assign(recordToPOJO(dsRecord), defaultChanges);
   const changeset = makeChangeset({meta, changes});
@@ -20,8 +19,7 @@ export function checkoutChangeset(store, dsRecord, defaultChanges={}) {
   return changeset;
 }
 
-export function checkoutNewChangeset(store, modelName, changes={}) {
-  const redux = store.get('redux');
+export function checkoutNewChangeset(redux, modelName, changes={}) {
   const ref = uniqRef();
   const meta = { modelName, ref };
   const changeset = makeChangeset({meta, changes});

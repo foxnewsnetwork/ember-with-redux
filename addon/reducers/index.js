@@ -20,7 +20,8 @@ import {
 import {
   routePOJOResolved,
   routeModelResolved,
-  routeArrayResolved
+  routeArrayResolved,
+  routeChangesetResolved
 }  from './route-resolved';
 import { INITIAL_STATE } from '../constants/initial-state';
 import {
@@ -44,6 +45,7 @@ import {
   EMBER_ROUTE_MODEL_RESOLVED,
   EMBER_ROUTE_ARRAY_RESOLVED,
   EMBER_ROUTE_POJO_RESOLVED,
+  EMBER_ROUTE_CHANGESET_RESOLVED,
   EMBER_DS_RESET_STATE
 } from '../constants/actions';
 
@@ -101,6 +103,8 @@ export default function ds(state=INITIAL_STATE, action={}) {
       return routeArrayResolved(state, action);
     case EMBER_ROUTE_MODEL_RESOLVED:
       return routeModelResolved(state, action);
+    case EMBER_ROUTE_CHANGESET_RESOLVED:
+      return routeChangesetResolved(state, action);
     case EMBER_ROUTE_ACTIVATED:
       return state.update('activeRoutes', (routes) => routes.push(action.routeName));
     case EMBER_ROUTE_DEACTIVATED:

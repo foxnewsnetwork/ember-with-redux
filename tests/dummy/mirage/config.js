@@ -10,7 +10,7 @@ export default function() {
 
   this.urlPrefix = 'http://localhost:4200';    // make this `http://localhost:8080`, for example, if your API is on a different server
   this.namespace = 'api';    // make this `api`, for example, if your API is namespaced
-  this.timing = 25;      // delay for each request, automatically set to 0 during testing
+  this.timing = 10;      // delay for each request, automatically set to 0 during testing
 
   /*
     Shorthand cheatsheet:
@@ -29,4 +29,12 @@ export default function() {
   this.get('/dogs/:id');
   this.get('/dogs');
   this.post('/dogs');
+  this.patch('/dogs/:id', function(db, request) {
+    const { dogs } = db;
+    const id = request.params.id;
+    const attrs = this.normalizedRequestAttrs();
+    const dog = dogs.find(id);
+    const updatedDog = dog.update('attrs', attrs);
+    return updatedDog;
+  });
 }
