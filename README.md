@@ -2,6 +2,10 @@
 
 A set of extensions to `DS.Store` and `Ember.Route` so that Ember + Ember Data are properly aware of redux and interface with them correctly
 
+> TODO: Implement transformations in query
+> TODO: Implement queryRecord handling
+> TODO: Write tests for new and index routes
+
 ## Overview
 The goal of this addon is to bridge the gap between ember+ember-data and [ember-redux](http://www.ember-redux.com/) as to allow for ember users to keep much of what they love about ember (and data) and get all the functional benefits of also using redux to manage state.
 
