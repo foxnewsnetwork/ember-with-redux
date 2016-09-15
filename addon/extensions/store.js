@@ -51,7 +51,10 @@ function setupAttributes(record, data={}) {
 }
 
 function persistChangeset(store, dispatch, changeset) {
+  Ember.Logger.warn('persistChangeset function. Store:', store, ' | dispatch: ', dispatch);
+  Ember.Logger.warn('changeset: ', changeset);
   const { modelName, id } = changeset.get('meta', {});
+  const data = changeset.get('changes', {});
   const cleanRecord = maybePeekRecord(store, modelName, id) || store.createRecord(modelName);
   const dirtyRecord = setupAttributes(cleanRecord, data);
 

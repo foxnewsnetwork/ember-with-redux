@@ -1,13 +1,13 @@
 import Ember from 'ember';
 
-const { isPresent, get } = Ember;
+const { isPresent, get, set } = Ember;
 
 function getAllKeys(hashA, hashB) {
   let keys = Ember.A(Object.keys(hashA));
-  let bKeys = Object.keys(hashB);
+  let bKeys = Ember.A(Object.keys(hashB));
   for(let i = 0; i < get(keys, 'length'); i++) {
-    const key = bKeys[i];
-    if (!keys.includes(key)) {
+    const key = bKeys.objectAt(i);
+    if (isPresent(key) && !keys.includes(key)) {
       keys.push(bKeys[i]);
     }
   }

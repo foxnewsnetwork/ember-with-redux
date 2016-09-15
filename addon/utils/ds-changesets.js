@@ -6,9 +6,9 @@ import {
   isDSRecord,
   isPOJO
 } from './is';
-import { ID, DIE } from '../constants/functions';
+import { ID2, DIE2 } from '../constants/functions';
 import mergeWith from './merge-with';
-import { bind, pipe } from './functions';
+import { bind, pipe, curry } from './functions';
 /**
 Changesets look like:
 Map{
@@ -48,7 +48,7 @@ export function makeChangeset({meta, hooks, changes: rawChanges}) {
 }
 
 export function makeChangeThunk(changeset) {
-  const { beforePersist=ID, persist, afterSuccess=ID, afterFailure=DIE } = changeset.get('hooks');
+  const { beforePersist=ID2, persist, afterSuccess=ID2, afterFailure=DIE2 } = changeset.get('hooks');
   return (dispatch) => {
     const afterPersist = makeAfterPersist(curry(afterSuccess, dispatch), curry(afterFailure, dispatch));
     const changeFun = pipe(curry(beforePersist, dispatch), curry(persist, dispatch), afterPersist);

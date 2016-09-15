@@ -11,7 +11,7 @@ export default Ember.Helper.extend({
     assert('[ember-with-redux] Unable to find redux', redux);
     assert('[ember-with-redux] Unable to find store', store);
     let emberAction = function() {
-      run.join(redux, redux.dispatch, store.persistChangeset(changeset));
+      run.join(store, store.persistChangeset, changeset);
     };
     emberAction[ACTION] = true;
     return emberAction;

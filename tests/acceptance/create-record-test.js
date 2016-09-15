@@ -41,15 +41,11 @@ describe('Acceptance: CreateRecord', function() {
     let model, dsState;
     before(function(done) {
       Ember.run(() => {
-        const persistThunk = store.persistChangeset(changeset);
-        const fullThunk = (dispatch) => {
-          return persistThunk(dispatch).then(() => {
-            dsState = redux.getState().ds;
+        store.persistChangeset(changeset).then(() => {
+          dsState = redux.getState().ds;
             model = getNewMember(dsState, changeset);
             done();
-          });
-        };
-        redux.dispatch(fullThunk);
+        });
       });
     });
     it('should properly find the storage model' ,function() {
