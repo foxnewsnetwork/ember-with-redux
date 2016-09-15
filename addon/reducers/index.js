@@ -14,6 +14,7 @@ import {
   setupChangeset,
   destroyChangeset,
   modifyChangeset,
+  modifyChangesetHooks,
   failChangeset,
   persistChangeset
 } from './changeset';
@@ -39,6 +40,9 @@ import {
   DS_CHANGESET_MODIFIED,
   DS_CHANGESET_CREATED,
   DS_CHANGESET_CLEARED,
+  DS_CHANGESET_AFTER_SUCCESS_HOOKED,
+  DS_CHANGESET_AFTER_FAILURE_HOOKED,
+  DS_CHANGESET_BEFORE_PERSIST_HOOKED,
   EMBER_ROUTE_ACTIVATED,
   EMBER_ROUTE_DEACTIVATED,
   EMBER_ROUTE_PARAMS_LOADED,
@@ -64,6 +68,10 @@ arcane than `.`, `$`, `<$>`, and `>>=`
 export default function ds(state=INITIAL_STATE, action={}) {
   const { meta, error, type: status } = action;
   switch (action.type) {
+    case DS_CHANGESET_AFTER_SUCCESS_HOOKED:
+    case DS_CHANGESET_AFTER_FAILURE_HOOKED:
+    case DS_CHANGESET_BEFORE_PERSIST_HOOKED:
+      return modifyChangesetHooks(state, action);
     case DS_CHANGESET_CREATED:
       return setupChangeset(state, action);
     case DS_CHANGESET_CLEARED:

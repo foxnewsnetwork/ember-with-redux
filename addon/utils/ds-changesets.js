@@ -6,6 +6,9 @@ import {
   isDSRecord,
   isPOJO
 } from './is';
+import { ID, DIE } from '../constants/functions';
+import mergeWith from './merge-with';
+import { bind, pipe } from './functions';
 /**
 Changesets look like:
 Map{
@@ -13,6 +16,8 @@ Map{
   changes: {}
 }
 */
+const { isPresent, assert } = Ember;
+
 export function updateChangesets(state, updater) {
   return state.update('dsChangesets', updater);
 }
@@ -32,15 +37,29 @@ function normalizeChanges(something) {
   }
 }
 
-export function makeChangeset({meta, changes: rawChanges}) {
+function makeAfterPersist(afterSuccess, afterFailure) {
+  return (promise) => promise.then(afterSuccess).catch(afterFailure);
+}
+
+export function makeChangeset({meta, hooks, changes: rawChanges}) {
   const changes = normalizeChanges(rawChanges);
-  return Immutable.Map({ meta, changes });
+
+  return Immutable.Map({ meta, changes, hooks });
+}
+
+export function makeChangeThunk(changeset) {
+  const { beforePersist=ID, persist, afterSuccess=ID, afterFailure=DIE } = changeset.get('hooks');
+  return (dispatch) => {
+    const afterPersist = makeAfterPersist(curry(afterSuccess, dispatch), curry(afterFailure, dispatch));
+    const changeFun = pipe(curry(beforePersist, dispatch), curry(persist, dispatch), afterPersist);
+    return changeFun(changeset);
+  }
 }
 
 export function setChangeset(dsChangesets, changeset) {
   const { modelName, ref } = changeset.get('meta');
-  Ember.assert('your changeset must have a valid modelName in its meta field', Ember.isPresent(modelName));
-  Ember.assert('your changeset must have a valid ref value in its meta field', Ember.isPresent(ref));
+  assert('your changeset must have a valid modelName in its meta field', isPresent(modelName));
+  assert('your changeset must have a valid ref value in its meta field', isPresent(ref));
   return dsChangesets.update(modelName, NULL_MAP, (changesets) => {
     return changesets.set(ref, changeset);
   });
@@ -56,6 +75,12 @@ export function deleteChangeset(dsChangesets, changeset) {
 export function mergeChanges(changeset, changes) {
   return changeset.update('changes', {}, (existingChanges) => {
     return Ember.assign({}, existingChanges, changes);
+  });
+}
+
+export function mergeHooks(changeset, hooks) {
+  return changeset.update('hooks', {}, (existingHooks) => {
+    return mergeWith(pipe, existingHooks, hooks);
   });
 }
 

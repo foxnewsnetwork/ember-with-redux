@@ -4,6 +4,7 @@ import {
   deleteChangeset,
   setChangeset,
   mergeChanges,
+  mergeHooks,
   setError
 } from '../utils/ds-changesets';
 import {
@@ -17,6 +18,13 @@ export function modifyChangeset(state, action) {
   return updateChangesets(state, (changesets) => {
     return setChangeset(changesets, mergeChanges(changeset, changes));
   });
+}
+
+export function modifyChangesetHooks(state, action) {
+  const { changeset, hooks } = action;
+  return updateChangesets(state, (changesets) => {
+    return setChangeset(changesets, mergeHooks(changeset, hooks));
+  })
 }
 
 export function setupChangeset(state, action) {
