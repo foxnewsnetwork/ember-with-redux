@@ -24,7 +24,7 @@ export default function mergeWith(onCollison, hashA, hashB) {
     if (isPresent(aVal) && isPresent(bVal)) {
       val = onCollison(aVal, bVal);
     } else {
-      val = aVal || bVal
+      val = aVal || bVal;
     }
     set(output, key, val);
   }

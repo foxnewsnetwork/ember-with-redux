@@ -53,7 +53,7 @@ export function makeChangeThunk(changeset) {
     const afterPersist = makeAfterPersist(curry(afterSuccess, dispatch), curry(afterFailure, dispatch));
     const changeFun = pipe(curry(beforePersist, dispatch), curry(persist, dispatch), afterPersist);
     return changeFun(changeset);
-  }
+  };
 }
 
 export function setChangeset(dsChangesets, changeset) {

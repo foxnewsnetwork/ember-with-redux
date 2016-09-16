@@ -64,7 +64,7 @@ function persistChangeset(store, dispatch, changeset) {
     dispatch({ type: DS_CHANGESET_PERSIST_FAILED, error, changeset });
     dirtyRecord.rollbackAttributes();
     throw error;
-  });;
+  });
 }
 
 export default {

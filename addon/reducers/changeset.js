@@ -24,7 +24,7 @@ export function modifyChangesetHooks(state, action) {
   const { changeset, hooks } = action;
   return updateChangesets(state, (changesets) => {
     return setChangeset(changesets, mergeHooks(changeset, hooks));
-  })
+  });
 }
 
 export function setupChangeset(state, action) {
