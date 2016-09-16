@@ -74,7 +74,7 @@ export function deleteChangeset(dsChangesets, changeset) {
 
 export function mergeChanges(changeset, changes) {
   return changeset.update('changes', {}, (existingChanges) => {
-    return Ember.assign({}, existingChanges, changes);
+    return Object.assign({}, existingChanges, changes);
   });
 }
 

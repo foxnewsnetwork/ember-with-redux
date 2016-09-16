@@ -12,7 +12,7 @@ import { makeChangeset } from './ds-changesets';
 export function checkoutChangeset(redux, dsRecord, defaultChanges, persist) {
   const ref = Ember.guidFor(dsRecord);
   const meta = recordToMeta(dsRecord, {ref});
-  const changes = Ember.assign(recordToPOJO(dsRecord), defaultChanges);
+  const changes = Object.assign(recordToPOJO(dsRecord), defaultChanges);
   const hooks = { persist };
   const changeset = makeChangeset({meta, changes, hooks});
 

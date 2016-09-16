@@ -6,8 +6,8 @@ import { NULL_MAP } from '../constants/initial-state';
 import { LIST, RECORD, CHANGESET, POJO } from '../constants/route-model-types';
 import { findChangeset } from './ds-changesets';
 import { getMember } from './ds-storage';
-const { assert, typeOf, assign } = Ember;
-
+const { assert, typeOf } = Ember;
+const { assign } = Object;
 export function getRouteModel(state, routeName) {
   const routeModel = state.get('routesModels').get(routeName, NULL_MAP);
   switch (routeModel.get('dataType')) {

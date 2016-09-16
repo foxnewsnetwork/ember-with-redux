@@ -56,7 +56,7 @@ export default {
   afterModel(model, transition) {
     const redux = this.get('redux');
     const actionBase = { routeName: this.routeName };
-    const action = Ember.assign(actionBase, modelAction(model));
+    const action = Object.assign(actionBase, modelAction(model));
     redux.dispatch(action);
     return this._super(model, transition);
   },

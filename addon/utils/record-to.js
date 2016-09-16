@@ -35,14 +35,14 @@ export function recordToPOJO(model) {
 }
 
 function dsModelToMeta(dsModel, meta) {
-  return Ember.assign({}, meta, {
+  return Object.assign({}, meta, {
     modelName: dsModel.constructor.modelName,
     id: dsModel.get('id')
   });
 }
 
 function emberObjectToMeta(object, meta) {
-  return Ember.assign({}, meta, {
+  return Object.assign({}, meta, {
     modelName: 'instance',
     guid: guid(object)
   });
