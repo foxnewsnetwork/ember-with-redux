@@ -5,9 +5,7 @@ export function bind(f, ...args) {
 }
 
 export function pipe(...fs) {
-  return fs.reduce((outF, f) => {
-    return (x) => f(outF(x))
-  }, ID);
+  return fs.reduce((outF, f) => (x) => f(outF(x)), ID);
 }
 
 export function curry(f, x) {

@@ -8,7 +8,7 @@ import {
 } from './is';
 import { ID2, DIE2 } from '../constants/functions';
 import mergeWith from './merge-with';
-import { bind, pipe, curry } from './functions';
+import { pipe, curry } from './functions';
 /**
 Changesets look like:
 Map{
