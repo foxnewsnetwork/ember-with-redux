@@ -7,12 +7,16 @@ import {
 } from 'mocha';
 import Ember from 'ember';
 import { getList } from 'ember-with-redux/utils/ds-collections';
+import { getName } from 'ember-with-redux/utils/functions';
 import { expect } from 'chai';
 import startApp from '../helpers/start-app';
 import destroyApp from '../helpers/destroy-app';
 
-function dogThatBites(dog) {
+function bitingDog(dog) {
   return dog.get('data', {}).bites;
+}
+function dogThatBites(dogs) {
+  return dogs.filter(bitingDog);
 }
 
 describe('Acceptance: QueryFilter', function() {
@@ -37,17 +41,20 @@ describe('Acceptance: QueryFilter', function() {
 
   describe('successfully querying for dogs that bite', function() {
     let models, dsState;
-    const meta = { modelName: 'dog', filter: dogThatBites };
+    const meta = { modelName: 'dog', transducer: dogThatBites };
     before(function(done) {
       Ember.run(() => {
-        store.query(meta.modelName, { bites: true }, meta.filter).finally(() => {
+        store.query(meta.modelName, { bites: true }, meta.transducer).finally(() => {
           dsState = redux.getState().ds;
           models = getList(dsState, meta);
           done();
         });
       });
     });
-
+    it('should have a sensible fun name', function() {
+      const name = getName(meta.transducer);
+      expect(name).to.match(/^dogThatBites#ember\d+$/);
+    });
     it('should return sane data', function() {
       expect(models).to.respondTo('count');
       expect(models.count()).to.equal(10);

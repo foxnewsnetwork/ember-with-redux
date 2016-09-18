@@ -11,7 +11,7 @@ import {
   DS_QUERY_COLLECTION_SUCCEEDED,
   DS_QUERY_COLLECTION_FAILED
 } from '../constants/actions';
-import { ALL } from '../constants/functions';
+import { ID } from '../constants/functions';
 import {
   checkoutChangeset,
   checkoutNewChangeset
@@ -69,12 +69,12 @@ function persistChangeset(store, dispatch, changeset) {
 
 export default {
   redux: service('redux'),
-  query(modelName, params, filter=ALL, syncWithRedux=true) {
-    const guid = Ember.guidFor(filter);
+  query(modelName, params, transducer=ID, syncWithRedux=true) {
+    const guid = Ember.guidFor(transducer);
     const collectionPromise = this._super(modelName, params);
 
     if (syncWithRedux) {
-      const meta = { modelName, filter, guid };
+      const meta = { modelName, transducer, guid };
       const redux = this.get('redux');
       const dispatch = redux.dispatch.bind(redux);
 
@@ -85,7 +85,7 @@ export default {
   findAll(modelName, opts, syncWithRedux=true) {
     const collectionPromise = this._super(modelName, opts);
     if (syncWithRedux) {
-      const meta = { modelName, filter: ALL };
+      const meta = { modelName, transducer: ID };
       const redux = this.get('redux');
       const dispatch = redux.dispatch.bind(redux);
 

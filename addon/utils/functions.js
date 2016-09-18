@@ -1,3 +1,4 @@
+import Ember from 'ember';
 import { ID } from '../constants/functions';
 
 export function bind(f, ...args) {
@@ -10,4 +11,12 @@ export function pipe(...fs) {
 
 export function curry(f, x) {
   return (...args) => f(x, ...args);
+}
+
+const LAMBDA = '/->';
+
+export function getName(f) {
+  const name = f.name || LAMBDA;
+  const guid = Ember.guidFor(f);
+  return `${name}#${guid}`;
 }

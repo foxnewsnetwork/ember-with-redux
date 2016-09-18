@@ -1,13 +1,14 @@
 import Immutable from 'immutable';
-import { ALL } from '../constants/functions';
+import { ID } from '../constants/functions';
 import { NULL_MAP } from '../constants/initial-state';
 import { getStorage } from './ds-storage';
+import { getName } from './functions';
 
-export function setCollection(collection, {modelName, filter=ALL}, collectionMember) {
-  const { name: filterName } = filter;
+export function setCollection(collection, {modelName, transducer=ID}, collectionMember) {
+  const transducerName = getName(transducer);
 
   return collection.update(modelName, NULL_MAP, (subCol) => {
-    return subCol.set(filterName, collectionMember);
+    return subCol.set(transducerName, collectionMember);
   });
 }
 
@@ -19,8 +20,6 @@ export function updateCollections(state, updater) {
   return state.update('dsCollections', updater);
 }
 
-export function getList(state, { modelName, filter=ALL}) {
-  return getStorage(state, { modelName })
-    .filter(filter)
-    .toList();
+export function getList(state, { modelName, transducer=ID}) {
+  return transducer(getStorage(state, { modelName })).toList();
 }
