@@ -47,7 +47,8 @@
     "redux-thunk": "2.1.0"
   },
   "keywords": [
-    "ember-addon"
+    "ember-addon",
+    "data"
   ],
   "dependencies": {
     "ember-cli-babel": "^5.1.6"
