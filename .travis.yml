@@ -22,6 +22,7 @@ env:
   - EMBER_TRY_SCENARIO=ember-2.5.X
   - EMBER_TRY_SCENARIO=ember-2.6.X
   - EMBER_TRY_SCENARIO=ember-2.7.X
+  - EMBER_TRY_SCENARIO=ember-2.8.X
   - EMBER_TRY_SCENARIO=ember-beta
 
 
