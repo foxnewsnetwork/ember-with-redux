@@ -1,6 +1,6 @@
 {
   "name": "ember-with-redux",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Ember and ember-data extensions to properly integrate with ember-redux",
   "directories": {
     "doc": "doc",
