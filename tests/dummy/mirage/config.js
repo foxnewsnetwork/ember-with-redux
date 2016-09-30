@@ -29,14 +29,7 @@ export default function() {
   this.get('/dogs/:id');
   this.get('/dogs');
   this.post('/dogs');
-  this.patch('/dogs/:id', function(db, request) {
-    const { dogs } = db;
-    const id = request.params.id;
-    const attrs = this.normalizedRequestAttrs();
-    const dog = dogs.find(id);
-    const updatedDog = dog.update('attrs', attrs);
-    return updatedDog;
-  });
+  this.patch('/dogs/:id');
   this.get('/shops');
   this.get('/guns');
 }
