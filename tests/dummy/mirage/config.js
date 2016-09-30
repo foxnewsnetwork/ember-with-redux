@@ -37,4 +37,6 @@ export default function() {
     const updatedDog = dog.update('attrs', attrs);
     return updatedDog;
   });
+  this.get('/shops');
+  this.get('/guns');
 }

@@ -1,18 +1,34 @@
 import Ember from 'ember';
 import DS from 'ember-data';
 
-const { typeOf, guid } = Ember;
+const { typeOf, guid, getWithDefault } = Ember;
 
 function isDSModel(model) {
   return typeOf(model) === 'instance' && model instanceof DS.Model;
 }
+
+const Getters = {
+  attribute(dsModel, field) {
+     return dsModel.get(field);
+  },
+  hasMany(dsModel, field) {
+    return dsModel.hasMany(field);
+  },
+  belongsTo(dsModel, field) {
+    return dsModel.belongsTo(field);
+  },
+  explodeAndDie(dsModel, field, kind) {
+    Ember.Logger.warn('[ember-with-redux] bad field in model', dsModel);
+    throw new Error(`While trying to access field: '${field}', I expected a sensible field-kind like 'attribute', 'hasMany', or 'belongsTo', but instead you gave me '${kind}' which I don't know how to handle.`);
+  }
+};
 
 function dsModelToPOJO(dsModel) {
   const fields = Ember.get(dsModel.constructor, 'fields');
   let output = { id: dsModel.get('id') };
 
   fields.forEach((kind, field) => {
-    output[field] = dsModel.get(field);
+    output[field] = getWithDefault(Getters, kind, Getters.explodeAndDie)(dsModel, field, kind);
   });
 
   return output;
